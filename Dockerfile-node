@@ -1,12 +1,13 @@
-FROM ubuntu:18.04 AS myzapdev
-WORKDIR /usr/src/app
-RUN apt-get update && apt-get install -y \
+FROM node:16-slim
+RUN apt-get update -y
+RUN apt-get install -y \
     gconf-service \
     libasound2 \
     libatk1.0-0 \
     libc6 \
     libcairo2 \
     libcups2 \
+    libdbus-1-3 \
     libexpat1 \
     libfontconfig1 \
     libgcc1 \
@@ -37,27 +38,9 @@ RUN apt-get update && apt-get install -y \
     libnss3 \
     lsb-release \
     xdg-utils \
+    unzip \
+    fontconfig \
     wget \
+    libgbm-dev \
     build-essential \
     apt-transport-https \
-    libgbm-dev \
-    && apt-get install curl -y \
-    && curl -sL https://deb.nodesource.com/setup_10.x | bash - \
-    && apt-get install -y \
-    git \
-    nodejs
-#COPY package*.json ./
-#COPY .env-example ./.env
-#RUN npm install
-EXPOSE 3333
-CMD npm install ; node index.js
-
-FROM myzapdev AS myzapprod
-WORKDIR /usr/src/app
-COPY package*.json ./
-RUN npm install
-COPY . .
-#RUN rm -rf .env
-
-EXPOSE 3333
-CMD node index.js
