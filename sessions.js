@@ -336,27 +336,21 @@ module.exports = class Sessions {
         }
     } //getQrcode
 
-    static async sendText(req) {
-        var params = {
-            sessionName: req.body.sessionName,
-            number: req.body.number,
-            text: req.body.text
-        }
-        var session = Sessions.getSession(params.sessionName);
-        if (session) {
-            if (session.state == "CONNECTED") {
-                await session.client.then(async client => {
-                    console.log('#### send msg =', params);
-                    return await client.sendText(params.number + '@c.us', params.text);
-                });
-                return { result: "success" }
-            } else {
-                return { result: "error", message: session.state };
+    static async sendText(req, res) {
+        let session = Sessions.getSession(req.body.session)
+        let number = `${req.body.number}@c.us`;
+        if (!req.body.text) {
+            return {
+                status: 400,
+                error: "Text não foi informado"
             }
-        } else {
-            return { result: "error", message: "NOTFOUND" };
         }
-    } //message
+        return await session.client
+          .sendText(number, req.body.text)
+          .catch((e) => {
+            console.log(e);
+          });
+    }
 
     static async sendTextToStorie(req) {
         var params = {
